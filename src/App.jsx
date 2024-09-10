@@ -1,6 +1,9 @@
+import { useSelector } from "react-redux";
 import MainCard from "./components/MainCard";
 
 function App() {
+  const addTask = useSelector((state) => state.taskList.value)
+  console.log(addTask)
   return (
     <>
       <div className="w-full h-[100px] flex justify-center items-center bg-orange-100 border-solid border-2 border-black"><span className="text-4xl">Kanban Board</span></div>
