@@ -2,51 +2,41 @@ import React, { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { Divider, Fab, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, TextField } from "@mui/material";
-import TaskCard from "../TaskCard";  // Your TaskCard component
+import { Divider, Fab } from "@mui/material";
+import TaskCard from "../TaskCard"; // Your TaskCard component
 import AddIcon from "@mui/icons-material/Add";
+import TaskDialog from "../TaskDialog";
 
-const MainCard = ({ title }) => {
+const MainCard = (props) => {
+  console.log(props);
   const [titleColor, setTitlecolor] = useState("green");
   const [openDialog, setOpenDialog] = useState(false); // To handle the dialog visibility
-  const [newTaskTitle, setNewTaskTitle] = useState(""); // Store new task title
-  const [newTaskDescription, setNewTaskDescription] = useState(""); // Store new task description
-  const [tasks, setTasks] = useState([]); // Store all tasks
+
+  const [newTasks, setNewTasks] = useState([]); // Store all newTasks
 
   useEffect(() => {
-    if (title === "Todos") {
+    if (props.title === "Todos") {
       setTitlecolor("brown");
-    } else if (title === "In Progress") {
+    } else if (props.title === "In Progress") {
       setTitlecolor("yellow");
-    } else if (title === "Peer Review") {
+    } else if (props.title === "Peer Review") {
       setTitlecolor("orange");
-    } else if (title === "Done") {
+    } else if (props.title === "Done") {
       setTitlecolor("green");
     }
-  }, [title]);
+  }, [props.title]);
+
+  useEffect(() => {
+    setNewTasks(props.taskList);
+  }, [props.taskList]);
+
+  const handleOnClickTaskCard = () => {
+    setOpenDialog(true);
+  };
 
   // Handle opening the dialog
   const handleOpenDialog = () => {
     setOpenDialog(true);
-  };
-
-  // Handle closing the dialog
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setNewTaskTitle(""); // Reset input
-    setNewTaskDescription(""); // Reset input
-  };
-
-  // Handle creating a new task
-  const handleCreateTask = () => {
-    if (newTaskTitle && newTaskDescription) {
-      setTasks([...tasks, { title: newTaskTitle, description: newTaskDescription }]); // Add new task to the list
-      handleCloseDialog(); // Close the dialog
-    }
-  };
-
-  const handleOnClickTaskCard = () => {
-    setOpenDialog(true)
   };
 
   return (
@@ -60,19 +50,25 @@ const MainCard = ({ title }) => {
             variant="h5"
             component="div"
           >
-            {title}
+            {props.title}
           </Typography>
           <Divider />
           <div>
-            {/* Render each task using TaskCard */}
-            {tasks.map((task, index) => (
-              <TaskCard key={index} title={task.title} description={task.description} onClick={handleOnClickTaskCard}/>
-            ))}
+            {/* Render each new task using TaskCard in todos only*/}
+            {props.title === "Todos" &&
+              newTasks.map((task, index) => (
+                <TaskCard
+                  key={index}
+                  title={task.title}
+                  description={task.description}
+                  onClick={handleOnClickTaskCard}
+                />
+              ))}
           </div>
         </CardContent>
       </Card>
 
-      {title === "Todos" ? (
+      {props.title === "Todos" ? (
         <>
           <Fab
             color="primary"
@@ -82,41 +78,11 @@ const MainCard = ({ title }) => {
           >
             <AddIcon />
           </Fab>
-
-          {/* Dialog for adding a new task */}
-          <Dialog open={openDialog} onClose={handleCloseDialog}>
-            <DialogTitle>Add New Task</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                Please enter the title and description for your new task.
-              </DialogContentText>
-              <TextField
-                autoFocus
-                margin="dense"
-                label="Task Title"
-                fullWidth
-                value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
-              />
-              <TextField
-                margin="dense"
-                label="Task Description"
-                fullWidth
-                multiline
-                rows={4}
-                value={newTaskDescription}
-                onChange={(e) => setNewTaskDescription(e.target.value)}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseDialog}>Cancel</Button>
-              <Button onClick={handleCreateTask} color="primary">
-                Create
-              </Button>
-            </DialogActions>
-          </Dialog>
         </>
       ) : null}
+      {openDialog && (
+        <TaskDialog isOpenDialog={openDialog} setIsOpenDialog={setOpenDialog} />
+      )}
     </div>
   );
 };
