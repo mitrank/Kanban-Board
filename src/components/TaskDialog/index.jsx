@@ -1,53 +1,66 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Button,
   TextField,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { addTaskList } from "../../features/taskList/taskListSlice";
+import { addTaskList, updateTaskList, removeTaskList } from "../../features/taskList/taskListSlice";
 
 const TaskDialog = (props) => {
-  const [newTaskTitle, setNewTaskTitle] = useState(""); // Store new task title
-  const [newTaskDescription, setNewTaskDescription] = useState(""); // Store new task description
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDescription, setNewTaskDescription] = useState("");
   const dispatch = useDispatch();
 
-  // Handle closing the dialog
+  useEffect(() => {
+    if (props.currentCardData) {
+      setNewTaskTitle(props.currentCardData.title || "");
+      setNewTaskDescription(props.currentCardData.description || "");
+    }
+  }, [props.currentCardData]);
+
   const handleCloseDialog = () => {
     props.setIsOpenDialog(false);
-    setNewTaskTitle(""); // Reset input
-    setNewTaskDescription(""); // Reset input
+    setNewTaskTitle("");
+    setNewTaskDescription("");
   };
 
-  // Handle creating a new task
+  const handleSaveChanges = () => {
+    if (newTaskTitle && newTaskDescription) {
+      const updatedTask = {
+        ...props.currentCardData,
+        title: newTaskTitle,
+        description: newTaskDescription,
+      };
+      dispatch(updateTaskList(updatedTask));
+      handleCloseDialog();
+    }
+  };
+
+  const handleDeleteTask = () => {
+    dispatch(removeTaskList(props.currentCardData));
+    handleCloseDialog();
+  };
+
   const handleCreateTask = () => {
     if (newTaskTitle && newTaskDescription) {
-      //   setTasks([
-      //     ...tasks,
-      //     { title: newTaskTitle, description: newTaskDescription },
-      //   ]); // Add new task to the list
-      const finalTaskData = {};
-      finalTaskData.title = newTaskTitle;
-      finalTaskData.description = newTaskDescription;
-      finalTaskData.isTaskCreated = true;
-      finalTaskData.status = "todo";
-      dispatch(addTaskList(finalTaskData));
-      console.log(finalTaskData)
-      handleCloseDialog(); // Close the dialog
+      const newTask = {
+        title: newTaskTitle,
+        description: newTaskDescription,
+        status: "todo",
+      };
+      dispatch(addTaskList(newTask));
+      handleCloseDialog();
     }
   };
 
   return (
     <Dialog open={props.isOpenDialog} onClose={handleCloseDialog}>
-      <DialogTitle>Add New Task</DialogTitle>
+      <DialogTitle>{props.currentCardData ? "Edit Task" : "Add New Task"}</DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          Please enter the title and description for your new task.
-        </DialogContentText>
         <TextField
           autoFocus
           margin="dense"
@@ -68,9 +81,20 @@ const TaskDialog = (props) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleCloseDialog}>Cancel</Button>
-        <Button onClick={handleCreateTask} color="primary">
-          Create
-        </Button>
+        {props.currentCardData ? (
+          <>
+            <Button onClick={handleSaveChanges} color="primary">
+              Save
+            </Button>
+            <Button onClick={handleDeleteTask} color="secondary">
+              Delete
+            </Button>
+          </>
+        ) : (
+          <Button onClick={handleCreateTask} color="primary">
+            Create
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

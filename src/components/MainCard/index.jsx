@@ -3,16 +3,16 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { Divider, Fab } from "@mui/material";
-import TaskCard from "../TaskCard"; // Your TaskCard component
+import TaskCard from "../TaskCard";
 import AddIcon from "@mui/icons-material/Add";
 import TaskDialog from "../TaskDialog";
+import { useSelector } from "react-redux";
 
 const MainCard = (props) => {
-  console.log(props);
   const [titleColor, setTitlecolor] = useState("green");
-  const [openDialog, setOpenDialog] = useState(false); // To handle the dialog visibility
-
-  const [newTasks, setNewTasks] = useState([]); // Store all newTasks
+  const [openDialog, setOpenDialog] = useState(false);
+  const [currentCardData, setCurrentCardData] = useState(null);
+  const existingTaskList = useSelector((state) => state.taskList.existingTaskList);
 
   useEffect(() => {
     if (props.title === "Todos") {
@@ -26,18 +26,19 @@ const MainCard = (props) => {
     }
   }, [props.title]);
 
-  useEffect(() => {
-    setNewTasks(props.taskList);
-  }, [props.taskList]);
-
-  const handleOnClickTaskCard = () => {
+  const handleOnClickTaskCard = (task) => {
+    setCurrentCardData(task);
     setOpenDialog(true);
   };
 
-  // Handle opening the dialog
   const handleOpenDialog = () => {
+    setCurrentCardData(null);
     setOpenDialog(true);
   };
+
+  const filteredTasks = existingTaskList.filter(
+    (task) => task.status === (props.title === "Todos" ? "todo" : props.title.toLowerCase())
+  );
 
   return (
     <div style={{ position: "relative", width: 345, height: 600 }}>
@@ -54,34 +55,35 @@ const MainCard = (props) => {
           </Typography>
           <Divider />
           <div>
-            {/* Render each new task using TaskCard in todos only*/}
-            {props.title === "Todos" &&
-              newTasks.map((task, index) => (
-                <TaskCard
-                  key={index}
-                  title={task.title}
-                  description={task.description}
-                  onClick={handleOnClickTaskCard}
-                />
-              ))}
+            {filteredTasks.map((task) => (
+              <TaskCard
+                key={task.title}
+                title={task.title}
+                description={task.description}
+                onClick={() => handleOnClickTaskCard(task)}
+              />
+            ))}
           </div>
         </CardContent>
       </Card>
 
       {props.title === "Todos" ? (
-        <>
-          <Fab
-            color="primary"
-            aria-label="add"
-            style={{ position: "absolute", bottom: 16, right: 16 }}
-            onClick={handleOpenDialog}
-          >
-            <AddIcon />
-          </Fab>
-        </>
+        <Fab
+          color="primary"
+          aria-label="add"
+          style={{ position: "absolute", bottom: 16, right: 16 }}
+          onClick={handleOpenDialog}
+        >
+          <AddIcon />
+        </Fab>
       ) : null}
+
       {openDialog && (
-        <TaskDialog isOpenDialog={openDialog} setIsOpenDialog={setOpenDialog} />
+        <TaskDialog
+          isOpenDialog={openDialog}
+          setIsOpenDialog={setOpenDialog}
+          currentCardData={currentCardData}
+        />
       )}
     </div>
   );
