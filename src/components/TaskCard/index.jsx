@@ -7,7 +7,7 @@ import CardActionArea from "@mui/material/CardActionArea";
 const TaskCard = ({ title = "", description = "",onClick=()=>{} }) => {
   return title && description ? (
     <div onClick={onClick}> 
-      <Card sx={{ maxWidth: 345 }}>
+      <Card sx={{ maxWidth: 345, marginTop: 1, marginBottom: 1 }}>
         <CardActionArea>
           <CardContent>
             <Typography gutterBottom variant="h6" component="div">
