@@ -105,7 +105,7 @@ const MainCard = (props) => {
                       title={task.title}
                       description={task.description}
                       id={task.id}
-                      onClick={() => handleOnClickTaskCard(task)}
+                      onDoubleClick={() => handleOnClickTaskCard(task)}
                     />
                   ))}
               </SortableContext>

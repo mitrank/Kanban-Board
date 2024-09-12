@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
@@ -11,37 +11,58 @@ const TaskCard = ({
   title = "",
   description = "",
   id = "",
-  onClick = () => {},
+  onDoubleClick = () => {},
 }) => {
+  const [isDragging, setIsDragging] = useState(false)
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition
+    transition,
+  };
+
+  const handleMouseDown = () => {
+    setIsDragging(false); // Reset dragging state
+  };
+
+  const handleDragStart = () => {
+    setIsDragging(true); // Set dragging state
+  };
+
+  const handleDoubleClick = (event) => {
+    // Prevent drag if double-clicked
+    event.stopPropagation();
+    if (!isDragging) {
+      onDoubleClick(); // Handle double click
+    }
   };
 
   return title && description ? (
-    <div className="flex flex-row gap-2 mt-2 mb-2">
-      <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="w-full">
-        <Card sx={{ maxWidth: 345}}>
+    <div
+      className="mt-2 mb-2"
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onMouseDown={handleMouseDown}
+      onDoubleClick={handleDoubleClick}
+      onDragStart={handleDragStart}
+    >
+        <Card sx={{ maxWidth: 345 }}>
           <CardActionArea>
             <CardContent>
               <Typography gutterBottom variant="h6" component="div">
                 {title}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {description.length > 20 ? (
-                  description.substring(0, 25) + "..."
-                ) : description}
+                {description.length > 20
+                  ? description.substring(0, 35) + "..."
+                  : description}
               </Typography>
             </CardContent>
           </CardActionArea>
         </Card>
-      </div>
-      <Button onClick={onClick} variant="outlined" size="small" color="primary">
-        View
-      </Button>
     </div>
   ) : null;
 };
