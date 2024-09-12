@@ -31,7 +31,9 @@ const TaskCard = ({
                 {title}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {description}
+                {description.length > 20 ? (
+                  description.substring(0, 25) + "..."
+                ) : description}
               </Typography>
             </CardContent>
           </CardActionArea>
