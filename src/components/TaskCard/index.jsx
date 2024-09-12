@@ -20,7 +20,7 @@ const TaskCard = ({ title = "", description = "",onClick=()=>{} }) => {
         </CardActionArea>
       </Card>
     </div>
-  ) : null;
+   ) : null;
 };
 
 export default TaskCard;
