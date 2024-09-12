@@ -18,14 +18,12 @@ const MainCard = (props) => {
   const [titleColor, setTitlecolor] = useState("green");
   const [openDialog, setOpenDialog] = useState(false);
   const [currentCardData, setCurrentCardData] = useState(null);
-  const taskData = useSelector((state) => state.taskList.value)
-  const [taskList, setTaskList] = useState(
-    taskData
-  );
+  const taskData = useSelector((state) => state.taskList.value);
+  const [taskList, setTaskList] = useState(taskData);
 
   useEffect(() => {
-    setTaskList(taskData)
-  }, [taskData])
+    setTaskList(taskData);
+  }, [taskData]);
 
   useEffect(() => {
     if (props.title === "Todos") {
