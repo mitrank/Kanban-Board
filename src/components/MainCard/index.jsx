@@ -18,11 +18,14 @@ const MainCard = (props) => {
   const [titleColor, setTitlecolor] = useState("green");
   const [openDialog, setOpenDialog] = useState(false);
   const [currentCardData, setCurrentCardData] = useState(null);
-  const existingTaskList = useSelector(
-    (state) => state.taskList.existingTaskList
+  const taskData = useSelector((state) => state.taskList.value)
+  const [taskList, setTaskList] = useState(
+    taskData
   );
-  const [taskList, setTaskList] = useState(existingTaskList);
-  const [filteredTasks, setFilteredTasks] = useState([]);
+
+  useEffect(() => {
+    setTaskList(taskData)
+  }, [taskData])
 
   useEffect(() => {
     if (props.title === "Todos") {
@@ -35,17 +38,6 @@ const MainCard = (props) => {
       setTitlecolor("green");
     }
   }, [props.title]);
-
-  useEffect(() => {
-    setFilteredTasks(
-      existingTaskList.filter(
-        (task) =>
-          task.status ===
-          (props.title === "Todos" ? "todo" : props.title.toLowerCase())
-      )
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taskList]);
 
   const handleOnClickTaskCard = (task) => {
     setCurrentCardData(task);
@@ -61,8 +53,16 @@ const MainCard = (props) => {
     const { active, over } = event;
     if (active.id !== over.id) {
       setTaskList((prevList) => {
-        const activeIndex = prevList.map(item => {return item.id}).indexOf(active.id);
-        const overIndex = prevList.map(item => {return item.id}).indexOf(over.id);
+        const activeIndex = prevList
+          .map((item) => {
+            return item.id;
+          })
+          .indexOf(active.id);
+        const overIndex = prevList
+          .map((item) => {
+            return item.id;
+          })
+          .indexOf(over.id);
         return arrayMove(prevList, activeIndex, overIndex);
       });
     }
@@ -91,15 +91,23 @@ const MainCard = (props) => {
                 items={taskList}
                 strategy={verticalListSortingStrategy}
               >
-                {taskList.map((task, index) => (
-                  <TaskCard
-                    key={task.title}
-                    title={task.title}
-                    description={task.description}
-                    id={task.id}
-                    onClick={() => handleOnClickTaskCard(task)}
-                  />
-                ))}
+                {taskList
+                  .filter(
+                    (task) =>
+                      task.status ===
+                      (props.title === "Todos"
+                        ? "todo"
+                        : props.title.toLowerCase())
+                  )
+                  .map((task, index) => (
+                    <TaskCard
+                      key={task.title}
+                      title={task.title}
+                      description={task.description}
+                      id={task.id}
+                      onClick={() => handleOnClickTaskCard(task)}
+                    />
+                  ))}
               </SortableContext>
             </DndContext>
           </div>

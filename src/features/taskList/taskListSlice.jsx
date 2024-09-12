@@ -13,28 +13,28 @@ export const taskListSlice = createSlice({
   name: "taskList",
   initialState: {
     value: loadTasksFromLocalStorage(),
-    existingTaskList: loadTasksFromLocalStorage(),
   },
   reducers: {
     addTaskList: (state, action) => {
-      const updatedTasks = [...state.existingTaskList, action.payload];
-      state.existingTaskList = updatedTasks;
+      const updatedTasks = [...state.value, action.payload];
+      // state.existingTaskList = updatedTasks;
       state.value = updatedTasks;
+      // state.value.push(action.payload)
       saveTasksToLocalStorage(updatedTasks);
     },
     updateTaskList: (state, action) => {
-      const updatedTasks = state.existingTaskList.map((task) =>
+      const updatedTasks = state.value.map((task) =>
         task.title === action.payload.title ? action.payload : task
       );
-      state.existingTaskList = updatedTasks;
+      // state.existingTaskList = updatedTasks;
       state.value = updatedTasks;
       saveTasksToLocalStorage(updatedTasks);
     },
     removeTaskList: (state, action) => {
-      const updatedTasks = state.existingTaskList.filter(
+      const updatedTasks = state.value.filter(
         (task) => task.title !== action.payload.title
       );
-      state.existingTaskList = updatedTasks;
+      // state.existingTaskList = updatedTasks;
       state.value = updatedTasks;
       saveTasksToLocalStorage(updatedTasks);
     },
