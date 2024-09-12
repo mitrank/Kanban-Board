@@ -7,12 +7,22 @@ import TaskCard from "../TaskCard";
 import AddIcon from "@mui/icons-material/Add";
 import TaskDialog from "../TaskDialog";
 import { useSelector } from "react-redux";
+import { closestCenter, DndContext } from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 const MainCard = (props) => {
   const [titleColor, setTitlecolor] = useState("green");
   const [openDialog, setOpenDialog] = useState(false);
   const [currentCardData, setCurrentCardData] = useState(null);
-  const existingTaskList = useSelector((state) => state.taskList.existingTaskList);
+  const existingTaskList = useSelector(
+    (state) => state.taskList.existingTaskList
+  );
+  const [taskList, setTaskList] = useState(existingTaskList);
+  const [filteredTasks, setFilteredTasks] = useState([]);
 
   useEffect(() => {
     if (props.title === "Todos") {
@@ -26,6 +36,17 @@ const MainCard = (props) => {
     }
   }, [props.title]);
 
+  useEffect(() => {
+    setFilteredTasks(
+      existingTaskList.filter(
+        (task) =>
+          task.status ===
+          (props.title === "Todos" ? "todo" : props.title.toLowerCase())
+      )
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taskList]);
+
   const handleOnClickTaskCard = (task) => {
     setCurrentCardData(task);
     setOpenDialog(true);
@@ -36,9 +57,16 @@ const MainCard = (props) => {
     setOpenDialog(true);
   };
 
-  const filteredTasks = existingTaskList.filter(
-    (task) => task.status === (props.title === "Todos" ? "todo" : props.title.toLowerCase())
-  );
+  const handleOnDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      setTaskList((prevList) => {
+        const activeIndex = prevList.map(item => {return item.id}).indexOf(active.id);
+        const overIndex = prevList.map(item => {return item.id}).indexOf(over.id);
+        return arrayMove(prevList, activeIndex, overIndex);
+      });
+    }
+  };
 
   return (
     <div style={{ position: "relative", width: 345, height: 600 }}>
@@ -55,14 +83,25 @@ const MainCard = (props) => {
           </Typography>
           <Divider />
           <div>
-            {filteredTasks.map((task) => (
-              <TaskCard
-                key={task.title}
-                title={task.title}
-                description={task.description}
-                onClick={() => handleOnClickTaskCard(task)}
-              />
-            ))}
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleOnDragEnd}
+            >
+              <SortableContext
+                items={taskList}
+                strategy={verticalListSortingStrategy}
+              >
+                {taskList.map((task, index) => (
+                  <TaskCard
+                    key={task.title}
+                    title={task.title}
+                    description={task.description}
+                    id={task.id}
+                    onClick={() => handleOnClickTaskCard(task)}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           </div>
         </CardContent>
       </Card>

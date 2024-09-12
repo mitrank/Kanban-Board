@@ -50,6 +50,7 @@ const TaskDialog = (props) => {
       const newTask = {
         title: newTaskTitle,
         description: newTaskDescription,
+        id: newTaskTitle.split(' ').join('').toLowerCase(),
         status: "todo",
       };
       dispatch(addTaskList(newTask));

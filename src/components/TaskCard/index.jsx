@@ -3,22 +3,43 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import CardActionArea from "@mui/material/CardActionArea";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Button } from "@mui/material";
 
-const TaskCard = ({ title = "", description = "",onClick=()=>{} }) => {
+const TaskCard = ({
+  title = "",
+  description = "",
+  id = "",
+  onClick = () => {},
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
+  };
+
   return title && description ? (
-    <div onClick={onClick}> 
-      <Card sx={{ maxWidth: 345, marginTop: 1, marginBottom: 1 }}>
-        <CardActionArea>
-          <CardContent>
-            <Typography gutterBottom variant="h6" component="div">
-              {title}
-            </Typography>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              {description}
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
+    <div className="flex flex-row gap-2 mt-2 mb-2">
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="w-full">
+        <Card sx={{ maxWidth: 345}}>
+          <CardActionArea>
+            <CardContent>
+              <Typography gutterBottom variant="h6" component="div">
+                {title}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                {description}
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+      </div>
+      <Button onClick={onClick} variant="outlined" size="small" color="primary">
+        View
+      </Button>
     </div>
   ) : null;
 };
